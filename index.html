@@ -157,76 +157,78 @@
     <script>
       const $ = (selector) => document.querySelector(selector);
 
-      const getBrowserIcon = (name) => {
-        if (name) {
-          if (name.includes("Chrome")) return "/images/chrome.svg";
-          if (name === "Chromium") return "/images/chrome.svg";
-          if (name.includes("Firefox")) return "/images/firefox.svg";
-          if (name.includes("Safari")) return "/images/safari.svg";
-          if (name === "Edge") return "/images/ie.svg";
-          if (name === "IE") return "/images/ie.svg";
-          if (name.includes("Opera")) return "/images/opera.svg";
-        }
-
-        return "/images/browser.svg";
-      };
-
-      const getSystemIcon = (name) => {
-        if (name) {
-          if (name.includes("Windows")) return "/images/windows.svg";
-          if (name === "Mac OS") return "/images/apple.svg";
-          if (name === "iOS") return "/images/apple.svg";
-          if (name.includes("Android")) return "/images/android.svg";
-          if (name.includes("Linux")) return "/images/linux.svg";
-          if (name === "Debian") return "/images/debian.svg";
-          if (name === "RedHat") return "/images/redhat.svg";
-        }
-
-        return "/images/laptop.svg";
-      };
-
-      const coerceCpuArch = (arch) => {
-        if (arch === "amd64") return "x64";
-        if (arch === "ia32") return "x86";
-        return arch;
-      };
-
-      const formatDeviceName = (vendor, model, type) => {
-        let device = "";
-
-        if (vendor) device += ` ${vendor}`;
-        if (model) device += ` ${model}`;
-        if (type) device += ` (${type})`;
-
-        device = device.trim();
-
-        return device || "Unknown";
-      };
-
       const parsed = new UAParser().getResult();
       console.log(parsed);
 
       // Browser
       {
-        $("#browser-icon").src = getBrowserIcon(parsed.browser.name);
+        $("#browser-icon").src = (() => {
+          if (parsed.browser.name) {
+            if (parsed.browser.name.includes("Chrome"))
+              return "/images/chrome.svg";
+            if (parsed.browser.name === "Chromium") return "/images/chrome.svg";
+            if (parsed.browser.name.includes("Firefox"))
+              return "/images/firefox.svg";
+            if (parsed.browser.name.includes("Safari"))
+              return "/images/safari.svg";
+            if (parsed.browser.name === "Edge") return "/images/ie.svg";
+            if (parsed.browser.name === "IE") return "/images/ie.svg";
+            if (parsed.browser.name.includes("Opera"))
+              return "/images/opera.svg";
+          }
+
+          return "/images/browser.svg";
+        })();
+
         $("#browser-name").innerText = parsed.browser.name || "Unknown Browser";
-        $("#browser-version").innerText = parsed.browser.major || "Unknown";
+        $("#browser-version").innerText = parsed.browser.version || "Unknown";
       }
 
       // System
       {
-        $("#system-icon").src = getSystemIcon(parsed.os.name);
+        $("#system-icon").src = (() => {
+          if (parsed.os.name) {
+            if (parsed.os.name.includes("Windows"))
+              return "/images/windows.svg";
+            if (parsed.os.name === "Mac OS") return "/images/apple.svg";
+            if (parsed.os.name === "iOS") return "/images/apple.svg";
+            if (parsed.os.name.includes("Android"))
+              return "/images/android.svg";
+            if (parsed.os.name.includes("Linux")) return "/images/linux.svg";
+            if (parsed.os.name === "Debian") return "/images/debian.svg";
+            if (parsed.os.name === "RedHat") return "/images/redhat.svg";
+          }
+
+          return "/images/laptop.svg";
+        })();
+
         $("#system-name").innerText = parsed.os.name || "Unknown OS";
         $("#system-version").innerText = parsed.os.version || "";
 
-        $("#system-architecture").innerText =
-          coerceCpuArch(parsed.cpu.architecture) || "Unknown";
+        $("#system-architecture").innerText = (() => {
+          if (parsed.cpu.architecture) {
+            // Coerce some CPU architectures to more common monikers
+            if (parsed.cpu.architecture === "amd64") return "x64";
+            if (parsed.cpu.architecture === "ia32") return "x86";
+          } else {
+            // MacOS doesn't provide the CPU architecture directly
+            if (parsed.ua.includes("Intel Mac OS X")) return "x64";
+          }
 
-        $("#system-device").innerText = formatDeviceName(
-          parsed.device.vendor,
-          parsed.device.model,
-          parsed.device.type
-        );
+          return parsed.cpu.architecture || "Unknown";
+        })();
+
+        $("#system-device").innerText = (() => {
+          let device = "";
+
+          if (parsed.device.vendor) device += ` ${parsed.device.vendor}`;
+          if (parsed.device.model) device += ` ${parsed.device.model}`;
+          if (parsed.device.type) device += ` (${parsed.device.type})`;
+
+          device = device.trim();
+
+          return device || "Unknown";
+        })();
       }
 
       // User agent string
