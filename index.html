@@ -1,10 +1,80 @@
 <!DOCTYPE html>
 <html>
-<body>
+  <head>
+    <title>UserAgent Information</title>
 
-<h1>Hello World!</h1>
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/sakura.css/css/sakura.css"
+      type="text/css"
+    />
 
-<p>Foo bar test test.</p>
+    <script
+      src="https://cdnjs.cloudflare.com/ajax/libs/UAParser.js/1.0.37/ua-parser.min.js"
+      integrity="sha512-LAchvH0Y4sxYM1ouOaqHQ6WbSXvOgkioPaiyW0oPOFNNMNfpsBEpvzYmsxgDf8pQM/fMaMdxYP/nFenquTAkdw=="
+      crossorigin="anonymous"
+      referrerpolicy="no-referrer"
+    ></script>
+  </head>
 
-</body>
+  <body>
+    <!-- Browser info -->
+    <div>
+      <h2>Browser</h2>
+      <div id="browser-name">...</div>
+      <div id="browser-version">...</div>
+    </div>
+
+    <!-- Operating System info -->
+    <div>
+      <h2>Operating System</h2>
+      <div id="os-name">...</div>
+      <div id="os-version">...</div>
+      <div id="os-architecture">...</div>
+    </div>
+
+    <!-- Device info -->
+    <div>
+      <h2>Device</h2>
+      <div id="device-type">...</div>
+      <div id="device-vendor">...</div>
+      <div id="device-model">...</div>
+    </div>
+
+    <!-- Raw user agent string -->
+    <div>
+      <h2>Raw User Agent</h2>
+      <pre id="raw-user-agent">...</pre>
+    </div>
+
+    <script>
+      const $ = (selector) => document.querySelector(selector);
+
+      const coerceCpuArch = (arch) => {
+        if (arch === "amd64") return "x64";
+        if (arch === "ia32") return "x86";
+        return arch;
+      };
+
+      const parsed = new UAParser().getResult();
+      console.log(parsed);
+
+      // Browser info
+      $("#browser-name").innerText = parsed.browser.name;
+      $("#browser-version").innerText = parsed.browser.version;
+
+      // Operating System info
+      $("#os-name").innerText = parsed.os.name;
+      $("#os-version").innerText = parsed.os.version;
+      $("#os-architecture").innerText = coerceCpuArch(parsed.cpu.architecture);
+
+      // Device info
+      $("#device-type").innerText = parsed.device.type;
+      $("#device-vendor").innerText = parsed.device.vendor;
+      $("#device-model").innerText = parsed.device.model;
+
+      // Raw user agent string
+      $("#raw-user-agent").innerText = parsed.ua;
+    </script>
+  </body>
 </html>
