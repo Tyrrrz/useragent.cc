@@ -158,24 +158,30 @@
       const $ = (selector) => document.querySelector(selector);
 
       const getBrowserIcon = (name) => {
-        if (name.includes("Chrome")) return "/images/chrome.svg";
-        if (name === "Chromium") return "/images/chrome.svg";
-        if (name.includes("Firefox")) return "/images/firefox.svg";
-        if (name.includes("Safari")) return "/images/safari.svg";
-        if (name === "Edge") return "/images/ie.svg";
-        if (name === "IE") return "/images/ie.svg";
-        if (name.includes("Opera")) return "/images/opera.svg";
+        if (name) {
+          if (name.includes("Chrome")) return "/images/chrome.svg";
+          if (name === "Chromium") return "/images/chrome.svg";
+          if (name.includes("Firefox")) return "/images/firefox.svg";
+          if (name.includes("Safari")) return "/images/safari.svg";
+          if (name === "Edge") return "/images/ie.svg";
+          if (name === "IE") return "/images/ie.svg";
+          if (name.includes("Opera")) return "/images/opera.svg";
+        }
+
         return "/images/browser.svg";
       };
 
       const getSystemIcon = (name) => {
-        if (name.includes("Windows")) return "/images/windows.svg";
-        if (name === "Mac OS") return "/images/apple.svg";
-        if (name === "iOS") return "/images/apple.svg";
-        if (name.includes("Android")) return "/images/android.svg";
-        if (name.includes("Linux")) return "/images/linux.svg";
-        if (name === "Debian") return "/images/debian.svg";
-        if (name === "RedHat") return "/images/redhat.svg";
+        if (name) {
+          if (name.includes("Windows")) return "/images/windows.svg";
+          if (name === "Mac OS") return "/images/apple.svg";
+          if (name === "iOS") return "/images/apple.svg";
+          if (name.includes("Android")) return "/images/android.svg";
+          if (name.includes("Linux")) return "/images/linux.svg";
+          if (name === "Debian") return "/images/debian.svg";
+          if (name === "RedHat") return "/images/redhat.svg";
+        }
+
         return "/images/laptop.svg";
       };
 
@@ -191,18 +197,18 @@
       // Browser
       {
         $("#browser-icon").src = getBrowserIcon(parsed.browser.name);
-        $("#browser-name").innerText = parsed.browser.name;
-        $("#browser-version").innerText = parsed.browser.major;
+        $("#browser-name").innerText = parsed.browser.name || "Unknown Browser";
+        $("#browser-version").innerText = parsed.browser.major || "Unknown";
       }
 
       // System
       {
         $("#system-icon").src = getSystemIcon(parsed.os.name);
-        $("#system-name").innerText = parsed.os.name;
-        $("#system-version").innerText = parsed.os.version;
-        $("#system-architecture").innerText = coerceCpuArch(
-          parsed.cpu.architecture
-        );
+        $("#system-name").innerText = parsed.os.name || "Unknown OS";
+        $("#system-version").innerText = parsed.os.version || "";
+
+        $("#system-architecture").innerText =
+          coerceCpuArch(parsed.cpu.architecture) || "Unknown";
 
         if (parsed.device.type || parsed.device.vendor || parsed.device.model) {
           $(
