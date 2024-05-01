@@ -191,6 +191,18 @@
         return arch;
       };
 
+      const formatDeviceName = (vendor, model, type) => {
+        let device = "";
+
+        if (vendor) device += ` ${vendor}`;
+        if (model) device += ` ${model}`;
+        if (type) device += ` (${type})`;
+
+        device = device.trim();
+
+        return device || "Unknown";
+      };
+
       const parsed = new UAParser().getResult();
       console.log(parsed);
 
@@ -210,13 +222,11 @@
         $("#system-architecture").innerText =
           coerceCpuArch(parsed.cpu.architecture) || "Unknown";
 
-        if (parsed.device.type || parsed.device.vendor || parsed.device.model) {
-          $(
-            "#system-device"
-          ).innerText = `${parsed.device.vendor} ${parsed.device.model} (${parsed.device.type})`;
-        } else {
-          $("#system-device").innerText = "Unknown";
-        }
+        $("#system-device").innerText = formatDeviceName(
+          parsed.device.vendor,
+          parsed.device.model,
+          parsed.device.type
+        );
       }
 
       // User agent string
