@@ -1,13 +1,7 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title>UserAgent Information</title>
-
-    <link
-      rel="stylesheet"
-      href="https://cdn.jsdelivr.net/npm/sakura.css/css/sakura.css"
-      type="text/css"
-    />
+    <title>User Agent</title>
 
     <script
       src="https://cdnjs.cloudflare.com/ajax/libs/UAParser.js/1.0.37/ua-parser.min.js"
@@ -15,40 +9,160 @@
       crossorigin="anonymous"
       referrerpolicy="no-referrer"
     ></script>
+
+    <style>
+      html {
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+          "Helvetica Neue", Arial, "Noto Sans", sans-serif;
+      }
+
+      body {
+        display: flex;
+        max-width: 48rem;
+        height: 100vh;
+        margin: auto;
+        flex-direction: column;
+        justify-content: center;
+        font-size: 18;
+        color: #4a4a4a;
+        background-color: #f9f9f9;
+      }
+
+      @media only screen and (max-width: 768px) {
+        html {
+          font-size: 16px;
+        }
+      }
+
+      @media only screen and (max-width: 640px) {
+        html {
+          font-size: 14px;
+        }
+      }
+
+      img,
+      video {
+        height: auto;
+        max-width: 100%;
+      }
+
+      pre {
+        background-color: #f1f1f1;
+        display: block;
+        padding: 1em;
+        overflow-x: auto;
+        margin-top: 0px;
+        margin-bottom: 2.5rem;
+        font-size: 0.9em;
+      }
+
+      code,
+      kbd,
+      samp {
+        font-size: 0.9em;
+        padding: 0 0.5em;
+        background-color: #f1f1f1;
+        white-space: pre-wrap;
+      }
+
+      pre > code {
+        padding: 0;
+        background-color: transparent;
+        white-space: pre-wrap;
+        font-size: 1em;
+      }
+
+      .split {
+        display: flex;
+        justify-content: space-between;
+      }
+
+      .info {
+        text-align: center;
+        font-size: 2em;
+      }
+
+      .icon {
+        width: 10rem;
+        height: 10rem;
+      }
+
+      .info-header {
+        font-size: 2em;
+        font-weight: 500;
+      }
+
+      .trailer {
+        margin-top: 8em;
+        font-size: 1.5em;
+      }
+    </style>
   </head>
 
   <body>
-    <!-- Browser info -->
-    <div>
-      <h2>Browser</h2>
-      <div id="browser-name">...</div>
-      <div id="browser-version">...</div>
-    </div>
+    <div class="split">
+      <!-- Browser -->
+      <div class="info">
+        <img id="browser-icon" class="icon" />
 
-    <!-- Operating System info -->
-    <div>
-      <h2>Operating System</h2>
-      <div id="os-name">...</div>
-      <div id="os-version">...</div>
-      <div id="os-architecture">...</div>
-    </div>
+        <div id="browser-name" class="info-header"></div>
 
-    <!-- Device info -->
-    <div>
-      <h2>Device</h2>
-      <div id="device-type">...</div>
-      <div id="device-vendor">...</div>
-      <div id="device-model">...</div>
+        <div>
+          <span>Version:</span>
+          <strong><span id="browser-version"></span></strong>
+        </div>
+      </div>
+
+      <!-- System -->
+      <div class="info">
+        <img id="system-icon" class="icon" />
+
+        <div class="info-header">
+          <span id="system-name"></span> <span id="system-version"></span>
+        </div>
+
+        <div>
+          <span>CPU Architecture:</span>
+          <strong><span id="system-architecture"></span></strong>
+        </div>
+
+        <div>
+          <span>Device:</span>
+          <strong><span id="system-device"></span></strong>
+        </div>
+      </div>
     </div>
 
     <!-- Raw user agent string -->
-    <div>
-      <h2>Raw User Agent</h2>
-      <pre id="raw-user-agent">...</pre>
+    <div class="trailer">
+      <div><strong>Raw User Agent:</strong></div>
+      <pre><code id="user-agent"></code></pre>
     </div>
 
     <script>
       const $ = (selector) => document.querySelector(selector);
+
+      const getBrowserIcon = (name) => {
+        if (name.includes("Chrome")) return "/images/chrome.svg";
+        if (name === "Chromium") return "/images/chrome.svg";
+        if (name.includes("Firefox")) return "/images/firefox.svg";
+        if (name.includes("Safari")) return "/images/safari.svg";
+        if (name === "Edge") return "/images/ie.svg";
+        if (name === "IE") return "/images/ie.svg";
+        if (name.includes("Opera")) return "/images/opera.svg";
+        return "/images/browser.svg";
+      };
+
+      const getSystemIcon = (name) => {
+        if (name.includes("Windows")) return "/images/windows.svg";
+        if (name === "Mac OS") return "/images/apple.svg";
+        if (name === "iOS") return "/images/apple.svg";
+        if (name.includes("Android")) return "/images/android.svg";
+        if (name.includes("Linux")) return "/images/linux.svg";
+        if (name === "Debian") return "/images/debian.svg";
+        if (name === "RedHat") return "/images/redhat.svg";
+        return "/images/laptop.svg";
+      };
 
       const coerceCpuArch = (arch) => {
         if (arch === "amd64") return "x64";
@@ -59,22 +173,35 @@
       const parsed = new UAParser().getResult();
       console.log(parsed);
 
-      // Browser info
-      $("#browser-name").innerText = parsed.browser.name;
-      $("#browser-version").innerText = parsed.browser.version;
+      // Browser
+      {
+        $("#browser-icon").src = getBrowserIcon(parsed.browser.name);
+        $("#browser-name").innerText = parsed.browser.name;
+        $("#browser-version").innerText = parsed.browser.major;
+      }
 
-      // Operating System info
-      $("#os-name").innerText = parsed.os.name;
-      $("#os-version").innerText = parsed.os.version;
-      $("#os-architecture").innerText = coerceCpuArch(parsed.cpu.architecture);
+      // System
+      {
+        $("#system-icon").src = getSystemIcon(parsed.os.name);
+        $("#system-name").innerText = parsed.os.name;
+        $("#system-version").innerText = parsed.os.version;
+        $("#system-architecture").innerText = coerceCpuArch(
+          parsed.cpu.architecture
+        );
 
-      // Device info
-      $("#device-type").innerText = parsed.device.type;
-      $("#device-vendor").innerText = parsed.device.vendor;
-      $("#device-model").innerText = parsed.device.model;
+        if (parsed.device.type || parsed.device.vendor || parsed.device.model) {
+          $(
+            "#system-device"
+          ).innerText = `${parsed.device.vendor} ${parsed.device.model} (${parsed.device.type})`;
+        } else {
+          $("#system-device").innerText = "Unknown";
+        }
+      }
 
-      // Raw user agent string
-      $("#raw-user-agent").innerText = parsed.ua;
+      // User agent string
+      {
+        $("#user-agent").innerText = parsed.ua;
+      }
     </script>
   </body>
 </html>
