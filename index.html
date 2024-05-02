@@ -9,12 +9,7 @@
       content="width=device-width, initial-scale=1"
     />
 
-    <script
-      src="https://cdnjs.cloudflare.com/ajax/libs/UAParser.js/1.0.37/ua-parser.min.js"
-      integrity="sha512-LAchvH0Y4sxYM1ouOaqHQ6WbSXvOgkioPaiyW0oPOFNNMNfpsBEpvzYmsxgDf8pQM/fMaMdxYP/nFenquTAkdw=="
-      crossorigin="anonymous"
-      referrerpolicy="no-referrer"
-    ></script>
+    <script src="https://cdn.jsdelivr.net/npm/ua-parser-js@2.0.0-beta.2/dist/ua-parser.pack.min.js"></script>
 
     <style>
       html {
@@ -157,99 +152,90 @@
     <script>
       const $ = (selector) => document.querySelector(selector);
 
-      const parsed = new UAParser().getResult();
-      console.log(parsed);
+      new UAParser()
+        .getResult()
+        .withFeatureCheck()
+        .withClientHints()
+        .then((result) => {
+          console.log(result);
 
-      // Browser
-      {
-        $("#browser-icon").src = (() => {
-          if (parsed.browser.name) {
-            if (parsed.browser.name.includes("Chrome"))
-              return "/images/chrome.svg";
-            if (parsed.browser.name === "Chromium") return "/images/chrome.svg";
-            if (parsed.browser.name.includes("Firefox"))
-              return "/images/firefox.svg";
-            if (parsed.browser.name.includes("Safari"))
-              return "/images/safari.svg";
-            if (parsed.browser.name === "Edge") return "/images/ie.svg";
-            if (parsed.browser.name === "IE") return "/images/ie.svg";
-            if (parsed.browser.name.includes("Opera"))
-              return "/images/opera.svg";
+          // Browser
+          {
+            $("#browser-icon").src = (() => {
+              if (result.browser.name) {
+                if (result.browser.name.includes("Chrome"))
+                  return "/images/chrome.svg";
+                if (result.browser.name === "Chromium")
+                  return "/images/chrome.svg";
+                if (result.browser.name.includes("Firefox"))
+                  return "/images/firefox.svg";
+                if (result.browser.name.includes("Safari"))
+                  return "/images/safari.svg";
+                if (result.browser.name === "Edge") return "/images/ie.svg";
+                if (result.browser.name === "IE") return "/images/ie.svg";
+                if (result.browser.name.includes("Opera"))
+                  return "/images/opera.svg";
+              }
+
+              return "/images/browser.svg";
+            })();
+
+            $("#browser-name").innerText =
+              result.browser.name || "Unknown Browser";
+            $("#browser-version").innerText =
+              result.browser.version || "Unknown";
           }
 
-          return "/images/browser.svg";
-        })();
+          // System
+          {
+            $("#system-icon").src = (() => {
+              if (result.os.name) {
+                if (result.os.name.includes("Windows"))
+                  return "/images/windows.svg";
+                if (result.os.name === "Mac OS") return "/images/apple.svg";
+                if (result.os.name === "iOS") return "/images/apple.svg";
+                if (result.os.name.includes("Android"))
+                  return "/images/android.svg";
+                if (result.os.name.includes("Linux"))
+                  return "/images/linux.svg";
+                if (result.os.name === "Debian") return "/images/debian.svg";
+                if (result.os.name === "RedHat") return "/images/redhat.svg";
+              }
 
-        $("#browser-name").innerText = parsed.browser.name || "Unknown Browser";
-        $("#browser-version").innerText = parsed.browser.version || "Unknown";
-      }
+              return "/images/laptop.svg";
+            })();
 
-      // System
-      {
-        $("#system-icon").src = (() => {
-          if (parsed.os.name) {
-            if (parsed.os.name.includes("Windows"))
-              return "/images/windows.svg";
-            if (parsed.os.name === "Mac OS") return "/images/apple.svg";
-            if (parsed.os.name === "iOS") return "/images/apple.svg";
-            if (parsed.os.name.includes("Android"))
-              return "/images/android.svg";
-            if (parsed.os.name.includes("Linux")) return "/images/linux.svg";
-            if (parsed.os.name === "Debian") return "/images/debian.svg";
-            if (parsed.os.name === "RedHat") return "/images/redhat.svg";
+            $("#system-name").innerText = result.os.name || "Unknown OS";
+            $("#system-version").innerText = result.os.version || "";
+
+            $("#system-architecture").innerText = (() => {
+              if (result.cpu.architecture) {
+                // Coerce some CPU architectures to more common monikers
+                if (result.cpu.architecture === "amd64") return "x64";
+                if (result.cpu.architecture === "ia32") return "x86";
+              }
+
+              return result.cpu.architecture || "Unknown";
+            })();
+
+            $("#system-device").innerText = (() => {
+              let device = "";
+
+              if (result.device.vendor) device += ` ${result.device.vendor}`;
+              if (result.device.model) device += ` ${result.device.model}`;
+              if (result.device.type) device += ` (${result.device.type})`;
+
+              device = device.trim();
+
+              return device || "Unknown";
+            })();
           }
 
-          return "/images/laptop.svg";
-        })();
-
-        $("#system-name").innerText = parsed.os.name || "Unknown OS";
-        $("#system-version").innerText = parsed.os.version || "";
-
-        $("#system-architecture").innerText = (() => {
-          if (parsed.cpu.architecture) {
-            // Coerce some CPU architectures to more common monikers
-            if (parsed.cpu.architecture === "amd64") return "x64";
-            if (parsed.cpu.architecture === "ia32") return "x86";
+          // User agent string
+          {
+            $("#user-agent").innerText = result.ua;
           }
-
-          return parsed.cpu.architecture || "Unknown";
-        })();
-
-        $("#system-device").innerText = (() => {
-          let device = "";
-
-          if (parsed.device.vendor) device += ` ${parsed.device.vendor}`;
-          if (parsed.device.model) device += ` ${parsed.device.model}`;
-          if (parsed.device.type) device += ` (${parsed.device.type})`;
-
-          device = device.trim();
-
-          return device || "Unknown";
-        })();
-      }
-
-      // User agent string
-      {
-        $("#user-agent").innerText = parsed.ua;
-      }
-
-      // HACK: MacOS user agent lies about its CPU brand and doesn't provide
-      // architecture information. Use this workaround to detect the correct
-      // architecture. Currently only works on Chrome.
-      if (
-        !parsed.cpu.architecture &&
-        parsed.os.name === "Mac OS" &&
-        navigator.userAgentData
-      ) {
-        navigator.userAgentData
-          .getHighEntropyValues(["architecture"])
-          .then((values) => {
-            if (values.architecture) {
-              $("#system-architecture").innerText =
-                values.architecture.includes("arm") ? "arm64" : "x64";
-            }
-          });
-      }
+        });
     </script>
   </body>
 </html>
