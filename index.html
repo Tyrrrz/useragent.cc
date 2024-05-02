@@ -210,9 +210,6 @@
             // Coerce some CPU architectures to more common monikers
             if (parsed.cpu.architecture === "amd64") return "x64";
             if (parsed.cpu.architecture === "ia32") return "x86";
-          } else {
-            // MacOS doesn't provide the CPU architecture directly
-            if (parsed.ua.includes("Intel Mac OS X")) return "x64";
           }
 
           return parsed.cpu.architecture || "Unknown";
