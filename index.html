@@ -232,6 +232,24 @@
       {
         $("#user-agent").innerText = parsed.ua;
       }
+
+      // HACK: MacOS user agent lies about its CPU brand and doesn't provide
+      // architecture information. Use this workaround to detect the correct
+      // architecture. Currently only works on Chrome.
+      if (
+        !parsed.cpu.architecture &&
+        parsed.os.name === "Mac OS" &&
+        navigator.userAgentData
+      ) {
+        navigator.userAgentData
+          .getHighEntropyValues(["architecture"])
+          .then((values) => {
+            if (values.architecture) {
+              $("#system-architecture").innerText =
+                values.architecture.includes("arm") ? "arm64" : "x64";
+            }
+          });
+      }
     </script>
   </body>
 </html>
