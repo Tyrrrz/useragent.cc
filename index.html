@@ -19,7 +19,7 @@
 
       body {
         display: flex;
-        max-width: 48rem;
+        max-width: 64rem;
         margin: auto;
         padding: 6rem;
         flex-direction: column;
@@ -121,6 +121,11 @@
           <span>Version:</span>
           <strong><span id="browser-version"></span></strong>
         </div>
+
+        <div>
+          <span>IP Address:</span>
+          <strong><span id="browser-ip"></span></strong>
+        </div>
       </div>
 
       <!-- System -->
@@ -184,6 +189,17 @@
               result.browser.name || "Unknown Browser";
             $("#browser-version").innerText =
               result.browser.version || "Unknown";
+
+            $("#browser-ip").innerText = "...";
+            fetch("https://api.ipify.org?format=json")
+              .then((response) => response.json())
+              .then((data) => {
+                $("#browser-ip").innerText = data.ip;
+              })
+              .catch((error) => {
+                console.error("Failed to fetch IP address:", error);
+                $("#browser-ip").innerText = "Unknown";
+              });
           }
 
           // System
