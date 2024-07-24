@@ -168,10 +168,10 @@
       </div>
     </div>
 
-    <!-- Raw user agent string -->
+    <!-- Raw data -->
     <div class="trailer">
-      <div><strong>Raw User Agent:</strong></div>
-      <pre><code id="user-agent"></code></pre>
+      <div><strong>Raw Data:</strong></div>
+      <pre><code id="raw-data"></code></pre>
     </div>
 
     <!-- Repo link -->
@@ -272,9 +272,9 @@
             })();
           }
 
-          // User agent string
+          // User agent data
           {
-            $("#user-agent").innerText = result.ua;
+            $("#raw-data").innerText = JSON.stringify(result, null, 2);
           }
         });
     </script>
